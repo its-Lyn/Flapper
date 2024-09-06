@@ -39,7 +39,7 @@ public class Bird : Entity {
     private Vector2 _origin;
     private Rectangle _source;
 
-    private void CycleAnimation() {
+    public void CycleAnimation() {
         _animationTimer += Raylib.GetFrameTime();
         if (_animationTimer >= _animationSpeed) {
             _animationTimer = 0;

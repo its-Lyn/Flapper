@@ -15,6 +15,13 @@ public class Game : State {
     private float _pipeSpawner = 0;
     private List<Pipes> _pipes = [];
 
+    private bool _playing = false;
+
+    private bool _animDone = false;
+    private int _startAlpha = 0;
+
+    private readonly Texture2D StartTexture = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", "message.png"));
+
     public void Initialise() {
         _bird.Initialise();
 
@@ -23,14 +30,33 @@ public class Game : State {
     }
 
     public void Update() {
+        if (Raylib.IsMouseButtonPressed(MouseButton.Left))
+            _playing = true;
+
+        if (!_playing) {
+            // Make the bird still do it's animation even when paused
+            _bird.CycleAnimation();
+
+            // Fade the start message in.
+            if (_startAlpha < 255)
+                _startAlpha = Math.Min(_startAlpha + 25, 255);
+
+            return;
+        }
+
+        // Fade the message out
+        if (!_animDone) {
+            _startAlpha = Math.Max(_startAlpha - 25, 0);
+            if (_startAlpha == 0) _animDone = true;
+        }
+
         _bird.Update();
  
         foreach (Ground ground in _ground) 
             ground.Update();
 
-        foreach (Pipes pipes in _pipes) {
+        foreach (Pipes pipes in _pipes)
             pipes.Update();
-        }
 
         _pipeSpawner += Raylib.GetFrameTime();
         if (_pipeSpawner > PipeSpawnDelay) {
@@ -46,12 +72,15 @@ public class Game : State {
     public void Draw() {
         _bird.Draw();
 
-        foreach (Pipes pipes in _pipes) {
+        foreach (Pipes pipes in _pipes)
             pipes.Draw();
-        }
 
         foreach (Ground ground in _ground) 
             ground.Draw();
+
+        if (!_animDone) {
+            Raylib.DrawTexture(StartTexture, 50, 40, new Color(255, 255, 255, _startAlpha));
+        }
     }
 
 }
