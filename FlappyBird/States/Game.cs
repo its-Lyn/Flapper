@@ -10,6 +10,7 @@ public class Game : State {
     ];
 
     private readonly float PipeSpawnDelay = 1.5f;
+    private readonly Texture2D PipeSprite = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", "pipe-green.png"));
 
     private float _pipeSpawner = 0;
     private List<Pipes> _pipes = [];
@@ -35,7 +36,7 @@ public class Game : State {
         if (_pipeSpawner > PipeSpawnDelay) {
             _pipeSpawner = 0;
 
-            Pipes pipes = new Pipes();
+            Pipes pipes = new Pipes(PipeSprite);
             pipes.Initialise();
 
             _pipes.Add(pipes);

@@ -3,7 +3,7 @@ using System.Numerics;
 namespace FlappyBird.Entities;
 
 public class Pipes : Entity {
-    private readonly Texture2D Sprite = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", "pipe-green.png"));
+    private readonly Texture2D Sprite; 
 
     private readonly float SpawnOffset = 20.0f;
     private readonly float Speed = 2.0f;
@@ -16,6 +16,9 @@ public class Pipes : Entity {
     public Vector2 SecondPosition = Vector2.Zero;
 
     private Rectangle _source;
+
+    public Pipes(Texture2D sprite)
+        => Sprite = sprite;
 
     public void Initialise() {
         FirstPosition.X = FlappyBird.GameSize.X + SpawnOffset;
