@@ -32,6 +32,8 @@ public class Bird : Entity {
         Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", "yellowbird-downflap.png"))
     };
 
+    private readonly Sound FlapSound = Raylib.LoadSound(Path.Combine(FlappyBird.AssetPath, "Audio", "wing.wav"));
+
     private Vector2 _pos = Vector2.Zero;
     private Vector2 _vel = Vector2.Zero;
 
@@ -77,6 +79,8 @@ public class Bird : Entity {
 
         // Flap
         if (Raylib.IsMouseButtonPressed(MouseButton.Left)) {
+            Raylib.PlaySound(FlapSound);
+
             _rotationAngle = MaxUpwardAngle;
 
             _vel.Y = JumpVelocity;
