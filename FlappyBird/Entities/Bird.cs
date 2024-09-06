@@ -37,7 +37,7 @@ public class Bird : Entity {
 
     // Sprite rotation fuckery
     private Vector2 _origin;
-    private Rectangle _destination;
+    private Rectangle _source;
 
     private void CycleAnimation() {
         _animationTimer += Raylib.GetFrameTime();
@@ -61,7 +61,7 @@ public class Bird : Entity {
             _sprites[_activeSpriteIdx].Height / 2
         );
 
-        _destination = new Rectangle(
+        _source = new Rectangle(
             0, 0, _sprites[_activeSpriteIdx].Width, _sprites[_activeSpriteIdx].Height
         );
     }
@@ -101,7 +101,7 @@ public class Bird : Entity {
     public void Draw() {
         Raylib.DrawTexturePro(
             _sprites[_activeSpriteIdx],
-            _destination,
+            _source,
             new Rectangle(_pos.X, _pos.Y, _sprites[_activeSpriteIdx].Width, _sprites[_activeSpriteIdx].Height), 
             _origin, 
             _rotation,

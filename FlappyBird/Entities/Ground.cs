@@ -23,5 +23,4 @@ public class Ground : Entity {
  
     public void Draw() 
         => Raylib.DrawTextureV(Sprite, _pos, Color.White);
-
 }
