@@ -55,8 +55,17 @@ public class Game : State {
         foreach (Ground ground in _ground) 
             ground.Update();
 
-        foreach (Pipes pipes in _pipes)
+        // Cannot use foreach as c# doesn't allow mutating
+        // While iterating at the same time
+        // ...rust
+        for (int idx = 0; idx < _pipes.Count; idx++) {
+            Pipes pipes = _pipes[idx];
+
             pipes.Update();
+
+            if (pipes.FirstPosition.X < -pipes.Sprite.Width)
+                _pipes.Remove(pipes);
+        }
 
         _pipeSpawner += Raylib.GetFrameTime();
         if (_pipeSpawner > PipeSpawnDelay) {

@@ -3,7 +3,7 @@ using System.Numerics;
 namespace FlappyBird.Entities;
 
 public class Pipes : Entity {
-    private readonly Texture2D Sprite; 
+    public readonly Texture2D Sprite; 
 
     private readonly float SpawnOffset = 20.0f;
     private readonly float Speed = 2.0f;
