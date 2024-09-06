@@ -1,4 +1,5 @@
 using System.Numerics;
+using FlappyBird.States;
 
 namespace FlappyBird;
 
@@ -7,6 +8,8 @@ public static class FlappyBird {
     
     public static readonly string AssetPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets");
     public static readonly Vector2 GameSize = new Vector2(288, 512);
+
+    public static State MainState = null!;
     
     public static void Main() {
         Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
@@ -21,6 +24,8 @@ public static class FlappyBird {
         // ...I can't be fucked to make DT physics
         Raylib.SetTargetFPS(60);
 
+        MainState = new Game();
+        MainState.Initialise();
         Texture2D background = Raylib.LoadTexture(Path.Combine(AssetPath, "Sprites", "background-day.png"));
 
         while (!Raylib.WindowShouldClose()) {
@@ -29,6 +34,8 @@ public static class FlappyBird {
                 Raylib.GetScreenHeight() / GameSize.Y
             );
 
+            MainState.Update();
+
             // Drawing inside the game world
             Raylib.BeginTextureMode(renderer);
                 Raylib.ClearBackground(Color.Black);
@@ -36,6 +43,8 @@ public static class FlappyBird {
                     background,
                     0, 0, Color.White
                 );
+
+                MainState.Draw();
             Raylib.EndTextureMode();
 
             // Drawing to the whole screen
