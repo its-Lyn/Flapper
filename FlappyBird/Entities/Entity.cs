@@ -4,4 +4,6 @@ public interface Entity {
     void Initialise();
     void Update();
     void Draw();
+
+    void OnExit();
 }

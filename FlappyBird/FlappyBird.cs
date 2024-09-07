@@ -9,8 +9,6 @@ public static class FlappyBird {
     public static readonly string AssetPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets");
     public static readonly Vector2 GameSize = new Vector2(288, 512);
 
-    public static State MainState = null!;
-    
     public static void Main() {
         Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
         Raylib.InitWindow((int)GameSize.X, (int)GameSize.Y, "Flappy Bird");
@@ -26,8 +24,9 @@ public static class FlappyBird {
         // ...I can't be fucked to make DT physics
         Raylib.SetTargetFPS(60);
 
-        MainState = new Game();
-        MainState.Initialise();
+        StateContext context = new StateContext();
+        context.StateMachine.SetState(new Game());
+
         Texture2D background = Raylib.LoadTexture(Path.Combine(AssetPath, "Sprites", "background-day.png"));
 
         while (!Raylib.WindowShouldClose()) {
@@ -36,17 +35,14 @@ public static class FlappyBird {
                 Raylib.GetScreenHeight() / GameSize.Y
             );
 
-            MainState.Update();
+            context.StateMachine.State?.Update(context);
 
             // Drawing inside the game world
             Raylib.BeginTextureMode(renderer);
                 Raylib.ClearBackground(Color.Black);
-                Raylib.DrawTexture(
-                    background,
-                    0, 0, Color.White
-                );
+                Raylib.DrawTexture(background, 0, 0, Color.White);
 
-                MainState.Draw();
+                context.StateMachine.State?.Draw();                
             Raylib.EndTextureMode();
 
             // Drawing to the whole screen
@@ -72,6 +68,8 @@ public static class FlappyBird {
         }
 
         Raylib.UnloadRenderTexture(renderer);
+
+        context.StateMachine.State?.OnExit();
 
         Raylib.CloseAudioDevice();
         Raylib.CloseWindow();

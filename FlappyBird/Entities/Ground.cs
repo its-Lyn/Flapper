@@ -23,4 +23,7 @@ public class Ground : Entity {
  
     public void Draw() 
         => Raylib.DrawTextureV(Sprite, _pos, Color.White);
+
+    public void OnExit()
+        => Raylib.UnloadTexture(Sprite);
 }

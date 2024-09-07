@@ -29,7 +29,7 @@ public class Game : State {
             ground.Initialise();
     }
 
-    public void Update() {
+    public void Update(StateContext ctx) {
         if (Raylib.IsMouseButtonPressed(MouseButton.Left))
             _playing = true;
 
@@ -92,4 +92,15 @@ public class Game : State {
         }
     }
 
+    public void OnExit() {
+        Raylib.UnloadTexture(StartTexture);
+        Raylib.UnloadTexture(PipeSprite);
+
+        _bird.OnExit();
+        foreach (Ground ground in _ground)
+            ground.OnExit();
+
+        foreach (Pipes pipes in _pipes) 
+            pipes.OnExit();
+    }
 }

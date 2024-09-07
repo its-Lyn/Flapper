@@ -112,4 +112,10 @@ public class Bird : Entity {
             Color.White 
         );
     }
+
+    public void OnExit() {
+        Raylib.UnloadSound(FlapSound);
+        foreach(Texture2D tex in _sprites)
+            Raylib.UnloadTexture(tex);
+    }
 }

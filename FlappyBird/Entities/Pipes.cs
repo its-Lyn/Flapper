@@ -48,4 +48,7 @@ public class Pipes : Entity {
             0, Color.White
         );
     }
+
+    public void OnExit() 
+        => Raylib.UnloadTexture(Sprite);
 }
