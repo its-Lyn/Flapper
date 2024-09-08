@@ -8,8 +8,11 @@ public class Ground : Entity {
 
     private Vector2 _pos = Vector2.Zero;
 
+    public Collider Collider = new Collider();
+
     public Ground(bool second) {
         if (second) _pos.X = Sprite.Width;
+        Collider.UpdateArea(0, FlappyBird.GameSize.Y - Sprite.Height, Sprite);
     }
 
     public void Initialise()
@@ -21,8 +24,12 @@ public class Ground : Entity {
             _pos.X = FlappyBird.GameSize.X; 
     }
  
-    public void Draw() 
-        => Raylib.DrawTextureV(Sprite, _pos, Color.White);
+    public void Draw() {
+        Raylib.DrawTextureV(Sprite, _pos, Color.White);
+
+        if (FlappyBird.DEV_MODE)
+            Raylib.DrawRectangleLinesEx(Collider.Area, 2, Color.Red);
+    } 
 
     public void OnExit()
         => Raylib.UnloadTexture(Sprite);

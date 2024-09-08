@@ -117,9 +117,8 @@ public class Bird : Entity {
             Color.White 
         );
 
-        if (FlappyBird.DEV_MODE) {
+        if (FlappyBird.DEV_MODE)
             Raylib.DrawRectangleLinesEx(Collider.Area, 2, Color.Red);
-        }
     }
 
     public void OnExit() {
