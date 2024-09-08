@@ -41,6 +41,8 @@ public class Bird : Entity {
     private Vector2 _origin;
     private Rectangle _source;
 
+    public Collider Collider = new Collider();
+
     public void CycleAnimation() {
         _animationTimer += Raylib.GetFrameTime();
         if (_animationTimer >= _animationSpeed) {
@@ -66,6 +68,8 @@ public class Bird : Entity {
         _source = new Rectangle(
             0, 0, _sprites[_activeSpriteIdx].Width, _sprites[_activeSpriteIdx].Height
         );
+
+        Collider.UpdateArea(_pos.X - _origin.X, _pos.Y - _origin.Y, _sprites[_activeSpriteIdx]);
     }
 
     public void Update() {
@@ -100,6 +104,7 @@ public class Bird : Entity {
         }
 
         _pos += _vel;
+        Collider.UpdateArea(_pos.X - _origin.X, _pos.Y - _origin.Y, _sprites[_activeSpriteIdx]);
     } 
 
     public void Draw() {
@@ -111,6 +116,10 @@ public class Bird : Entity {
             _rotation,
             Color.White 
         );
+
+        if (FlappyBird.DEV_MODE) {
+            Raylib.DrawRectangleLinesEx(Collider.Area, 2, Color.Red);
+        }
     }
 
     public void OnExit() {
