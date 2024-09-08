@@ -24,6 +24,8 @@ public class Pipes : Entity {
 
     public Collider Score = new Collider();
 
+    public bool Scored = false;
+
     public Pipes(Texture2D sprite)
         => Sprite = sprite;
 

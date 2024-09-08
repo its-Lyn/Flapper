@@ -7,4 +7,13 @@ public static class FlapMath {
 
         return from + (Math.Sign(to - from) * delta);
     }
+
+    public static IEnumerable<byte> SplitScore(int score) {
+        while (score > 0) {
+            byte digit = (byte)(score % 10);
+            yield return digit;
+
+            score /= 10;
+        }
+    }
 }

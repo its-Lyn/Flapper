@@ -1,4 +1,5 @@
 using FlappyBird.Entities;
+using FlappyBird.Utilities;
 
 namespace FlappyBird.States;
 
@@ -20,13 +21,29 @@ public class Game : State {
     private bool _animDone = false;
     private float _startAlpha = 0;
 
+    private int _score = 0;
+    private float _scoreAlpha = 0;
+    private List<Texture2D> _scoreTextured = new List<Texture2D>();
+    private List<Texture2D> _scoreSprites = new List<Texture2D>();
+
     private readonly Texture2D StartTexture = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", "message.png"));
+
+    private readonly Sound ScoreSound = Raylib.LoadSound(Path.Combine(FlappyBird.AssetPath, "Audio", "point.wav"));
+
+    private void UpdateScore() {
+        _scoreTextured.Clear();        
+        foreach (byte digit in FlapMath.SplitScore(_score))
+            _scoreTextured.Add(_scoreSprites[digit]);
+    }
 
     public void Initialise() {
         _bird.Initialise();
 
         foreach (Ground ground in _ground) 
             ground.Initialise();
+
+        for (int i = 0; i <= 9; i++)
+            _scoreSprites.Add(Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", $"{i}.png")));
     }
 
     public void Update(StateContext ctx) {
@@ -43,6 +60,9 @@ public class Game : State {
                 
             return;
         }
+
+        if (_score > 0 && _scoreAlpha <= 1)
+            _scoreAlpha += 0.2f;
 
         // Fade the message out
         if (!_animDone) {
@@ -62,6 +82,14 @@ public class Game : State {
             Pipes pipes = _pipes[idx];
 
             pipes.Update();
+
+            if (_bird.Collider.Overlaps(pipes.Score) && !pipes.Scored) {
+                Raylib.PlaySound(ScoreSound);
+                pipes.Scored = true;
+
+                _score += 1;
+                UpdateScore();
+            }
 
             if (pipes.FirstPosition.X < -pipes.Sprite.Width)
                 _pipes.Remove(pipes);
@@ -87,12 +115,22 @@ public class Game : State {
         foreach (Ground ground in _ground) 
             ground.Draw();
 
-        if (!_animDone) {
+        if (!_animDone)
             Raylib.DrawTexture(StartTexture, 50, 40, Raylib.Fade(Color.White, _startAlpha));
+        
+        if (_score == 0 || !_playing)
+            return;
+
+        var basePosition = (FlappyBird.GameSize.X / 2) + (_scoreSprites[1].Width / 2 * _scoreTextured.Count);
+        foreach (Texture2D num in _scoreTextured) {
+            basePosition -= num.Width;
+            Raylib.DrawTexture(num, (int)basePosition, 10, Raylib.Fade(Color.White, _scoreAlpha));
         }
     }
 
     public void OnExit() {
+        Raylib.UnloadSound(ScoreSound);
+
         Raylib.UnloadTexture(StartTexture);
         Raylib.UnloadTexture(PipeSprite);
 
@@ -102,5 +140,8 @@ public class Game : State {
 
         foreach (Pipes pipes in _pipes) 
             pipes.OnExit();
+
+        foreach (Texture2D tex in _scoreSprites) 
+            Raylib.UnloadTexture(tex);
     }
 }

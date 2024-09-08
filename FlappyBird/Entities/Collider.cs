@@ -24,6 +24,6 @@ public class Collider {
     public void UpdateArea(float x, float y, Texture2D sprite) 
         => UpdateArea(new Vector2(x, y), sprite);
 
-    public void Overlaps(Collider other) 
+    public bool Overlaps(Collider other) 
         => Raylib.CheckCollisionRecs(Area, other.Area);
 }
