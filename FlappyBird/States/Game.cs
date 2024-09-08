@@ -30,6 +30,9 @@ public class Game : State {
 
     private readonly Sound ScoreSound = Raylib.LoadSound(Path.Combine(FlappyBird.AssetPath, "Audio", "point.wav"));
 
+    private readonly Sound DeathSound = Raylib.LoadSound(Path.Combine(FlappyBird.AssetPath, "Audio", "hit.wav"));
+    private readonly Sound FallSound = Raylib.LoadSound(Path.Combine(FlappyBird.AssetPath, "Audio", "die.wav"));
+
     private void UpdateScore() {
         _scoreTextured.Clear();        
         foreach (byte digit in FlapMath.SplitScore(_score))
@@ -61,6 +64,20 @@ public class Game : State {
             return;
         }
 
+        // Die from the ground.
+        // It doesn't which index as the Area is the same.
+        if (_bird.Collider.Overlaps(_ground[0].Collider)) {
+            if (!_bird.Dead)
+                Raylib.PlaySound(DeathSound);
+
+            _bird.Dead = true;
+            _bird.Paused = true;
+        }
+
+        _bird.Update();
+
+        if (_bird.Dead) return;
+
         if (_score > 0 && _scoreAlpha <= 1)
             _scoreAlpha += 0.2f;
 
@@ -69,8 +86,6 @@ public class Game : State {
             _startAlpha = Math.Max(_startAlpha - 0.1f, 0);
             if (_startAlpha == 0) _animDone = true;
         }
-
-        _bird.Update();
  
         foreach (Ground ground in _ground) 
             ground.Update();
@@ -82,6 +97,13 @@ public class Game : State {
             Pipes pipes = _pipes[idx];
 
             pipes.Update();
+
+            if ((_bird.Collider.Overlaps(pipes.BottomPipe) || _bird.Collider.Overlaps(pipes.TopPipe)) && !_bird.Dead) {
+                Raylib.PlaySound(DeathSound);
+                Raylib.PlaySound(FallSound);
+
+                _bird.Dead = true;
+            }
 
             if (_bird.Collider.Overlaps(pipes.Score) && !pipes.Scored) {
                 Raylib.PlaySound(ScoreSound);
@@ -130,6 +152,7 @@ public class Game : State {
 
     public void OnExit() {
         Raylib.UnloadSound(ScoreSound);
+        Raylib.UnloadSound(DeathSound);
 
         Raylib.UnloadTexture(StartTexture);
         Raylib.UnloadTexture(PipeSprite);

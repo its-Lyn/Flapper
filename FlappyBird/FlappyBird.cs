@@ -15,6 +15,7 @@ public static class FlappyBird {
         Raylib.SetWindowMinSize(144, 256);
 
         Raylib.InitAudioDevice();
+        Raylib.SetMasterVolume(0.3f);
 
         // Create game world
         RenderTexture2D renderer = Raylib.LoadRenderTexture((int)GameSize.X, (int)GameSize.Y);

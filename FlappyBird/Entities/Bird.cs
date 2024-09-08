@@ -43,6 +43,9 @@ public class Bird : Entity {
 
     public Collider Collider = new Collider();
 
+    public bool Dead = false;
+    public bool Paused = false;
+
     public void CycleAnimation() {
         _animationTimer += Raylib.GetFrameTime();
         if (_animationTimer >= _animationSpeed) {
@@ -73,7 +76,9 @@ public class Bird : Entity {
     }
 
     public void Update() {
-        CycleAnimation();
+        if (Paused) return;
+
+        if (!Dead) CycleAnimation();
 
         // Apply gravity
         _vel.Y = FlapMath.MoveTowards(_vel.Y, TerminalVelocity, Gravity);
@@ -82,7 +87,7 @@ public class Bird : Entity {
         _rotation = FlapMath.MoveTowards(_rotation, _rotationAngle, _rotationSpeed);
 
         // Flap
-        if (Raylib.IsMouseButtonPressed(MouseButton.Left)) {
+        if (Raylib.IsMouseButtonPressed(MouseButton.Left) && !Dead) {
             Raylib.PlaySound(FlapSound);
 
             _rotationAngle = MaxUpwardAngle;
