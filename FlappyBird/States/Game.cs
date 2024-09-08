@@ -1,3 +1,4 @@
+using System.Numerics;
 using FlappyBird.Entities;
 using FlappyBird.Utilities;
 
@@ -20,6 +21,15 @@ public class Game : State {
 
     private bool _animDone = false;
     private float _startAlpha = 0;
+
+    private bool _flash = false;
+    private float _flashSpeed = 0.15f;
+    private float _flashAlpha = 0;
+    private enum FlashStates {
+        FadeIn,
+        FadeOut
+    }
+    private FlashStates _flashState = FlashStates.FadeIn;
 
     private int _score = 0;
     private float _scoreAlpha = 0;
@@ -67,11 +77,35 @@ public class Game : State {
         // Die from the ground.
         // It doesn't which index as the Area is the same.
         if (_bird.Collider.Overlaps(_ground[0].Collider)) {
-            if (!_bird.Dead)
+            if (!_bird.Dead) {
                 Raylib.PlaySound(DeathSound);
+                _flash = true;
+            }
 
             _bird.Dead = true;
             _bird.Paused = true;
+        }
+
+        if (_flash) {
+            switch (_flashState) {
+                case FlashStates.FadeIn:
+                    _flashAlpha += _flashSpeed;
+                    if (_flashAlpha >= 1) {
+                        _flashAlpha = 1;
+                        _flashState = FlashStates.FadeOut;
+                    }
+                break;
+
+                case FlashStates.FadeOut:
+                    _flashAlpha -= _flashSpeed;
+                    if (_flashAlpha <= 0) {
+                        _flashAlpha = 0;
+                        _flashState = FlashStates.FadeIn;
+
+                        _flash = false;
+                    }
+                break;
+            }
         }
 
         _bird.Update();
@@ -103,6 +137,8 @@ public class Game : State {
                 Raylib.PlaySound(FallSound);
 
                 _bird.Dead = true;
+
+                _flash = true;
             }
 
             if (_bird.Collider.Overlaps(pipes.Score) && !pipes.Scored) {
@@ -129,10 +165,10 @@ public class Game : State {
     }
 
     public void Draw() {
-        _bird.Draw();
-
         foreach (Pipes pipes in _pipes)
             pipes.Draw();
+
+        _bird.Draw();
 
         foreach (Ground ground in _ground) 
             ground.Draw();
@@ -140,6 +176,9 @@ public class Game : State {
         if (!_animDone)
             Raylib.DrawTexture(StartTexture, 50, 40, Raylib.Fade(Color.White, _startAlpha));
         
+        if (_flash) 
+            Raylib.DrawRectangleV(Vector2.Zero, FlappyBird.GameSize, Raylib.Fade(Color.White, _flashAlpha));
+
         if (_score == 0 || !_playing)
             return;
 
