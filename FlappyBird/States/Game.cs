@@ -18,7 +18,7 @@ public class Game : State {
     private bool _playing = false;
 
     private bool _animDone = false;
-    private int _startAlpha = 0;
+    private float _startAlpha = 0;
 
     private readonly Texture2D StartTexture = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", "message.png"));
 
@@ -38,15 +38,15 @@ public class Game : State {
             _bird.CycleAnimation();
 
             // Fade the start message in.
-            if (_startAlpha < 255)
-                _startAlpha = Math.Min(_startAlpha + 25, 255);
-
+            if (_startAlpha < 1)
+                _startAlpha += 0.1f;
+                
             return;
         }
 
         // Fade the message out
         if (!_animDone) {
-            _startAlpha = Math.Max(_startAlpha - 25, 0);
+            _startAlpha = Math.Max(_startAlpha - 0.1f, 0);
             if (_startAlpha == 0) _animDone = true;
         }
 
@@ -88,7 +88,7 @@ public class Game : State {
             ground.Draw();
 
         if (!_animDone) {
-            Raylib.DrawTexture(StartTexture, 50, 40, new Color(255, 255, 255, _startAlpha));
+            Raylib.DrawTexture(StartTexture, 50, 40, Raylib.Fade(Color.White, _startAlpha));
         }
     }
 
