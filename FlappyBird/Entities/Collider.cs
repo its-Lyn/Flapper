@@ -13,6 +13,17 @@ public class Collider {
         Area.Height = sprite.Height;        
     }
 
+    public void UpdateArea(float x, float y, float width, float height) {
+        Area.X = x;
+        Area.Y = y;
+
+        Area.Width = width;
+        Area.Height = height;
+    }
+
     public void UpdateArea(float x, float y, Texture2D sprite) 
         => UpdateArea(new Vector2(x, y), sprite);
+
+    public void Overlaps(Collider other) 
+        => Raylib.CheckCollisionRecs(Area, other.Area);
 }
