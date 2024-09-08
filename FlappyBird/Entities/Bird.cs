@@ -69,7 +69,7 @@ public class Bird : Entity {
             0, 0, _sprites[_activeSpriteIdx].Width, _sprites[_activeSpriteIdx].Height
         );
 
-        Collider.UpdateArea(_pos.X - _origin.X, _pos.Y - _origin.Y, _sprites[_activeSpriteIdx]);
+        Collider.UpdateArea(_pos - _origin, _sprites[_activeSpriteIdx]);
     }
 
     public void Update() {
@@ -104,7 +104,7 @@ public class Bird : Entity {
         }
 
         _pos += _vel;
-        Collider.UpdateArea(_pos.X - _origin.X, _pos.Y - _origin.Y, _sprites[_activeSpriteIdx]);
+        Collider.UpdateArea(_pos - _origin, _sprites[_activeSpriteIdx]);
     } 
 
     public void Draw() {
