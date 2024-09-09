@@ -60,7 +60,7 @@ public class Game : State {
     }
 
     public void Update(StateContext ctx) {
-        if (Raylib.IsMouseButtonPressed(MouseButton.Left))
+        if (Raylib.IsMouseButtonPressed(MouseButton.Left) || Raylib.IsKeyPressed(KeyboardKey.Space))
             _playing = true;
 
         if (!_playing) {
@@ -182,7 +182,7 @@ public class Game : State {
             Raylib.EndBlendMode();
         }
 
-        if (_score == 0 || !_playing)
+        if (_score == 0 || !_playing || _bird.Dead)
             return;
 
         var basePosition = (FlappyBird.GameSize.X / 2) + (_scoreSprites[1].Width / 2 * _scoreTextured.Count);

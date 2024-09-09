@@ -87,7 +87,7 @@ public class Bird : Entity {
         _rotation = FlapMath.MoveTowards(_rotation, _rotationAngle, _rotationSpeed);
 
         // Flap
-        if (Raylib.IsMouseButtonPressed(MouseButton.Left) && !Dead) {
+        if ((Raylib.IsMouseButtonPressed(MouseButton.Left) || Raylib.IsKeyPressed(KeyboardKey.Space)) && !Dead) {
             Raylib.PlaySound(FlapSound);
 
             _rotationAngle = MaxUpwardAngle;
