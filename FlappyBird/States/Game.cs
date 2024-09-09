@@ -132,7 +132,7 @@ public class Game : State {
 
             pipes.Update();
 
-            if ((_bird.Collider.Overlaps(pipes.BottomPipe) || _bird.Collider.Overlaps(pipes.TopPipe)) && !_bird.Dead) {
+            if ((_bird.Collider.Overlaps(pipes.BottomPipe) || _bird.Collider.Overlaps(pipes.TopPipe)) && !_bird.Dead && !FlappyBird.NoClip) {
                 Raylib.PlaySound(DeathSound);
                 Raylib.PlaySound(FallSound);
 
@@ -178,6 +178,8 @@ public class Game : State {
         if (!_animDone)
             Raylib.DrawTexture(StartTexture, 50, 40, Raylib.Fade(Color.White, _startAlpha));
        
+        // Use additive blending;
+        // That way the screen doesnt turn grey.
         if (_flash) {
             Raylib.BeginBlendMode(BlendMode.Additive);
                 Raylib.DrawRectangleV(Vector2.Zero, FlappyBird.GameSize, Raylib.Fade(Color.White, _flashAlpha));

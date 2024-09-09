@@ -5,6 +5,7 @@ namespace FlappyBird;
 
 public static class FlappyBird {
     public static readonly bool DevMode = false;
+    public static readonly bool NoClip = false;
     
     public static readonly string AssetPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets");
     public static readonly Vector2 GameSize = new Vector2(288, 512);
