@@ -1,4 +1,5 @@
 using System.Numerics;
+using FlappyBird.Components;
 using FlappyBird.Utilities;
 
 namespace FlappyBird.Entities;

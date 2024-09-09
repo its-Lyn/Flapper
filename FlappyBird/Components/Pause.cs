@@ -1,7 +1,7 @@
 using System.Numerics;
 using FlappyBird.States;
 
-namespace FlappyBird.Entities;
+namespace FlappyBird.Components;
 
 public class Pause {
     private readonly Texture2D Resume = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Buttons", "resume.png"));

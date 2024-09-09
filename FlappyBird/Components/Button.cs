@@ -1,8 +1,7 @@
 using System.Numerics;
-using System.Security.Cryptography;
 using FlappyBird.States;
 
-namespace FlappyBird.Entities;
+namespace FlappyBird.Components;
 
 public class Button(Texture2D sprite, Vector2 pos, Action<StateContext> action, bool performFade = true) {
     public Action<StateContext> Action = action;

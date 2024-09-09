@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace FlappyBird.Entities;
+namespace FlappyBird.Components;
 
 public class Collider {
     public Rectangle Area;

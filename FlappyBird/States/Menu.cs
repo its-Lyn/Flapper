@@ -1,6 +1,6 @@
 using System.Numerics;
 using FlappyBird.Entities;
-using FlappyBird.Utilities;
+using FlappyBird.Components;
 
 namespace FlappyBird.States;
 
