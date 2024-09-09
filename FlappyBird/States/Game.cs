@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.Serialization;
 using FlappyBird.Entities;
 using FlappyBird.Utilities;
 
@@ -43,6 +44,23 @@ public class Game : State {
     private readonly Sound DeathSound = Raylib.LoadSound(Path.Combine(FlappyBird.AssetPath, "Audio", "hit.wav"));
     private readonly Sound FallSound = Raylib.LoadSound(Path.Combine(FlappyBird.AssetPath, "Audio", "die.wav"));
 
+    private readonly Texture2D PanelTexture = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", "panel.png"));
+    private Vector2 _panelPos;
+    private bool _panelAnimating = false;
+    private float _panelTimer = 0;
+
+    private readonly Texture2D GameOver = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", "gameover.png"));
+    private float _gameOverAlpha = 0;
+    private bool _gameOverEase = false;
+    private bool _gameOverShow = false;
+    private float _gameOverTimer = 0;
+    public float _gameOverY = 120;
+
+    private readonly Texture2D Ok = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Buttons", "ok.png"));
+    private readonly Texture2D Share = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Buttons", "share.png"));
+    private List<Button> _buttons = [];
+    private bool _showButtons = false;
+
     private void UpdateScore() {
         _scoreTextured.Clear();        
         foreach (byte digit in FlapMath.SplitScore(_score))
@@ -57,6 +75,35 @@ public class Game : State {
 
         for (int i = 0; i <= 9; i++)
             _scoreSprites.Add(Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", $"{i}.png")));
+
+        _panelPos = new Vector2(
+            33,
+            FlappyBird.GameSize.Y + PanelTexture.Height + 50
+        );
+
+        float buttonY = FlappyBird.GameSize.Y - 160;
+
+        Button ok = new Button(
+            Ok,
+            new Vector2(50, buttonY),
+            (ctx) => {
+                Menu menu = new Menu();
+                menu.Initialise(ctx);
+
+                ctx.StateMachine.SetState(menu);
+            }
+        );
+
+        Button share = new Button(
+            Share,
+            new Vector2(FlappyBird.GameSize.X - Share.Width - 50, buttonY),
+            (ctx) => {
+                Console.WriteLine("This isn't a web game anymore man :3");
+            }, false
+        );
+
+        _buttons.Add(ok);
+        _buttons.Add(share);
     }
 
     public void Update(StateContext ctx) {
@@ -107,6 +154,8 @@ public class Game : State {
                         _flashState = FlashStates.FadeIn;
 
                         _flash = false;
+                        _gameOverShow = true;
+                        _gameOverEase = true;
                     }
                 break;
             }
@@ -114,7 +163,51 @@ public class Game : State {
 
         _bird.Update();
 
-        if (_bird.Dead) return;
+        if (_bird.Dead) {
+            if (_gameOverShow) {
+                if (_gameOverAlpha <= 1)
+                    _gameOverAlpha = Math.Min(_gameOverAlpha + 0.04f, 1);
+
+                if (_gameOverEase) {
+                    _gameOverTimer += Raylib.GetFrameTime();
+                    if (_gameOverTimer >= 0.9f) {
+                        _gameOverTimer = 0.9f;
+                        _gameOverEase = false;
+
+                        _panelAnimating = true;
+                    }
+
+                    float overNormalised = _gameOverTimer / 0.9f;
+                    _gameOverY = 100 + 20 * FlapMath.EaseOutElastic(overNormalised);
+                }
+            }
+
+            if (_panelAnimating) {
+                _panelTimer += Raylib.GetFrameTime();
+                if (_panelTimer >= 0.6f) {
+                    _panelTimer = 0.6f;
+                    _panelAnimating = false;
+                    _showButtons = true;
+                }
+
+                float timeNormalised = _panelTimer / 0.6f;
+                _panelPos.Y = FlappyBird.GameSize.Y + PanelTexture.Height - 430 * FlapMath.EaseOutCubic(timeNormalised);
+            }
+
+            if (_showButtons) {
+                Vector2 realMouse = Raylib.GetMousePosition();
+                Vector2 virtMouse = new Vector2(
+                    (realMouse.X - (Raylib.GetScreenWidth() - (FlappyBird.GameSize.X * FlappyBird.Scale)) * 0.5f) / FlappyBird.Scale,
+                    (realMouse.Y - (Raylib.GetScreenHeight() - (FlappyBird.GameSize.Y * FlappyBird.Scale)) * 0.5f) / FlappyBird.Scale
+                );
+                virtMouse = Vector2.Clamp(virtMouse, Vector2.Zero, FlappyBird.GameSize);
+
+                foreach (Button button in _buttons) 
+                    button.Update(virtMouse, ctx);
+            }
+
+            return;
+        }
 
         if (_score > 0 && _scoreAlpha <= 1)
             _scoreAlpha += 0.2f;
@@ -190,6 +283,17 @@ public class Game : State {
             Raylib.EndBlendMode();
         }
 
+        if (_bird.Dead) {
+            Raylib.DrawTexture(GameOver, 50, (int)_gameOverY, Raylib.Fade(Color.White, _gameOverAlpha));
+
+            Raylib.DrawTextureV(PanelTexture, _panelPos, Color.White);
+
+            if (_showButtons) {
+                foreach (Button button in _buttons)
+                    button.Draw();
+            }
+        }
+
         if (_score == 0 || !_playing || _bird.Dead)
             return;
 
@@ -206,6 +310,8 @@ public class Game : State {
 
         Raylib.UnloadTexture(StartTexture);
         Raylib.UnloadTexture(PipeSprite);
+        Raylib.UnloadTexture(PanelTexture);
+        Raylib.UnloadTexture(GameOver);
 
         _bird.OnExit();
         foreach (Ground ground in _ground)
