@@ -61,6 +61,12 @@ public class Game : State {
     private List<Button> _buttons = [];
     private bool _showButtons = false;
 
+    private readonly Texture2D Pause = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Buttons", "pause.png"));
+    private Button _pauseButton = null!;
+    private bool _gamePaused = false;        
+
+    private readonly Pause PauseComponent = new Pause();
+
     private void UpdateScore() {
         _scoreTextured.Clear();        
         foreach (byte digit in FlapMath.SplitScore(_score))
@@ -104,6 +110,16 @@ public class Game : State {
 
         _buttons.Add(ok);
         _buttons.Add(share);
+
+        _pauseButton = new Button(
+            Pause,
+            new Vector2(10, 10),
+            (ctx) => {
+                ctx.GamePaused = true;
+            }, false
+        );
+
+        PauseComponent.Initialise(ctx);
     }
 
     public void Update(StateContext ctx) {
@@ -161,7 +177,22 @@ public class Game : State {
             }
         }
 
+        Vector2 realMouse = Raylib.GetMousePosition();
+        Vector2 virtMouse = new Vector2(
+            (realMouse.X - (Raylib.GetScreenWidth() - (FlappyBird.GameSize.X * FlappyBird.Scale)) * 0.5f) / FlappyBird.Scale,
+            (realMouse.Y - (Raylib.GetScreenHeight() - (FlappyBird.GameSize.Y * FlappyBird.Scale)) * 0.5f) / FlappyBird.Scale
+        );
+        virtMouse = Vector2.Clamp(virtMouse, Vector2.Zero, FlappyBird.GameSize);
+
+        if (ctx.GamePaused) {
+            PauseComponent.Update(ctx, virtMouse);
+            return;
+        }
+
         _bird.Update();
+
+        if (!_bird.Dead)
+            _pauseButton.Update(virtMouse, ctx);
 
         if (_bird.Dead) {
             if (_gameOverShow) {
@@ -195,13 +226,6 @@ public class Game : State {
             }
 
             if (_showButtons) {
-                Vector2 realMouse = Raylib.GetMousePosition();
-                Vector2 virtMouse = new Vector2(
-                    (realMouse.X - (Raylib.GetScreenWidth() - (FlappyBird.GameSize.X * FlappyBird.Scale)) * 0.5f) / FlappyBird.Scale,
-                    (realMouse.Y - (Raylib.GetScreenHeight() - (FlappyBird.GameSize.Y * FlappyBird.Scale)) * 0.5f) / FlappyBird.Scale
-                );
-                virtMouse = Vector2.Clamp(virtMouse, Vector2.Zero, FlappyBird.GameSize);
-
                 foreach (Button button in _buttons) 
                     button.Update(virtMouse, ctx);
             }
@@ -261,6 +285,8 @@ public class Game : State {
 
             _pipes.Add(pipes);
         }
+
+        _gamePaused = ctx.GamePaused;
     }
 
     public void Draw() {
@@ -293,6 +319,12 @@ public class Game : State {
                     button.Draw();
             }
         }
+
+        if (!_bird.Dead)
+            _pauseButton.Draw();
+
+        if (_gamePaused) 
+            PauseComponent.Draw();
 
         if (_score == 0 || !_playing || _bird.Dead)
             return;

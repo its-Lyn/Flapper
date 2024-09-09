@@ -3,6 +3,8 @@ namespace FlappyBird.States;
 public class StateContext {
     public StateMachine StateMachine = new StateMachine();
 
+    public bool GamePaused = false;
+
     public enum FadeStates {
         FadeIn,
         FadeOut

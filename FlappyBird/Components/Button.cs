@@ -56,6 +56,6 @@ public class Button(Texture2D sprite, Vector2 pos, Action<StateContext> action, 
         Raylib.DrawTextureV(Sprite, _pos, Color.White);
 
         if (FlappyBird.DevMode) 
-            Raylib.DrawRectangleLinesEx(Collider.Area, 2, Color.Green);
+            Raylib.DrawRectangleLinesEx(Collider.Area, 2, Color.Purple);
     }
 }
