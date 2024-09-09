@@ -27,7 +27,7 @@ public class Ground : Entity {
     public void Draw() {
         Raylib.DrawTextureV(Sprite, _pos, Color.White);
 
-        if (FlappyBird.DEV_MODE)
+        if (FlappyBird.DevMode)
             Raylib.DrawRectangleLinesEx(Collider.Area, 2, Color.Red);
     } 
 

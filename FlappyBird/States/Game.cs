@@ -23,7 +23,7 @@ public class Game : State {
     private float _startAlpha = 0;
 
     private bool _flash = false;
-    private float _flashSpeed = 0.15f;
+    private float _flashSpeed = 0.35f;
     private float _flashAlpha = 0;
     private enum FlashStates {
         FadeIn,
@@ -175,9 +175,12 @@ public class Game : State {
 
         if (!_animDone)
             Raylib.DrawTexture(StartTexture, 50, 40, Raylib.Fade(Color.White, _startAlpha));
-        
-        if (_flash) 
-            Raylib.DrawRectangleV(Vector2.Zero, FlappyBird.GameSize, Raylib.Fade(Color.White, _flashAlpha));
+       
+        if (_flash) {
+            Raylib.BeginBlendMode(BlendMode.Additive);
+                Raylib.DrawRectangleV(Vector2.Zero, FlappyBird.GameSize, Raylib.Fade(Color.White, _flashAlpha));
+            Raylib.EndBlendMode();
+        }
 
         if (_score == 0 || !_playing)
             return;

@@ -4,7 +4,7 @@ using FlappyBird.States;
 namespace FlappyBird;
 
 public static class FlappyBird {
-    public const bool DEV_MODE = true;
+    public static readonly bool DevMode = false;
     
     public static readonly string AssetPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets");
     public static readonly Vector2 GameSize = new Vector2(288, 512);
@@ -64,7 +64,7 @@ public static class FlappyBird {
                     Color.White
                 );
 
-                if (DEV_MODE) Raylib.DrawFPS(5, 5);
+                if (DevMode) Raylib.DrawFPS(5, 5);
             Raylib.EndDrawing();
         }
 

@@ -77,7 +77,7 @@ public class Pipes : Entity {
             0, Color.White
         );
 
-        if (FlappyBird.DEV_MODE) {
+        if (FlappyBird.DevMode) {
             Raylib.DrawRectangleLinesEx(BottomPipe.Area, 2, Color.Red);
             Raylib.DrawRectangleLinesEx(TopPipe.Area, 2, Color.Red);
 
