@@ -67,6 +67,10 @@ public class Game : State {
             // Make the bird still do it's animation even when paused
             _bird.CycleAnimation();
 
+            // Keep updating the ground as in the original game the ground moves
+            foreach (Ground ground in _ground) 
+                ground.Update();
+        
             // Fade the start message in.
             if (_startAlpha < 1)
                 _startAlpha += 0.1f;

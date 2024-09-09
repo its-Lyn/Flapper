@@ -21,4 +21,8 @@
     <PackageReference Include="Raylib-cs" Version="6.1.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Assets/Buttons/" />
+  </ItemGroup>
+
 </Project>
