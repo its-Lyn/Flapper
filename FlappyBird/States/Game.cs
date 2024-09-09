@@ -149,8 +149,10 @@ public class Game : State {
                 UpdateScore();
             }
 
-            if (pipes.FirstPosition.X < -pipes.Sprite.Width)
+            if (pipes.FirstPosition.X < -pipes.Sprite.Width) {
                 _pipes.Remove(pipes);
+                idx--; // Adjust the index so it doesn't skip.
+            }
         }
 
         _pipeSpawner += Raylib.GetFrameTime();
