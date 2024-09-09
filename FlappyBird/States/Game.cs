@@ -49,7 +49,7 @@ public class Game : State {
             _scoreTextured.Add(_scoreSprites[digit]);
     }
 
-    public void Initialise() {
+    public void Initialise(StateContext ctx) {
         _bird.Initialise();
 
         foreach (Ground ground in _ground) 

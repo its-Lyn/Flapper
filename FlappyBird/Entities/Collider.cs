@@ -26,4 +26,7 @@ public class Collider {
 
     public bool Overlaps(Collider other) 
         => Raylib.CheckCollisionRecs(Area, other.Area);
+
+    public bool Overlaps(Vector2 mouse) 
+        => Raylib.CheckCollisionPointRec(mouse, Area);
 }

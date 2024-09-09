@@ -7,6 +7,5 @@ public class StateMachine {
         State?.OnExit();
 
         State = newState;
-        State.Initialise();
     }
 }

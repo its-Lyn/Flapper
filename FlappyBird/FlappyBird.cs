@@ -1,9 +1,12 @@
 using System.Numerics;
 using FlappyBird.States;
+using static FlappyBird.States.StateContext;
 
 namespace FlappyBird;
 
 public static class FlappyBird {
+    public static float Scale = 0;
+
     public static readonly bool DevMode = false;
     public static readonly bool NoClip = false;
     
@@ -27,24 +30,52 @@ public static class FlappyBird {
         Raylib.SetTargetFPS(60);
 
         StateContext context = new StateContext();
-        context.StateMachine.SetState(new Game());
+        context.StateMachine.SetState(new Menu());
+        context.StateMachine.State?.Initialise(context);
 
         Texture2D background = Raylib.LoadTexture(Path.Combine(AssetPath, "Sprites", "background-day.png"));
 
         while (!Raylib.WindowShouldClose()) {
-            float scale = Math.Min(
+            Scale = Math.Min(
                 Raylib.GetScreenWidth() / GameSize.X,
                 Raylib.GetScreenHeight() / GameSize.Y
             );
 
             context.StateMachine.State?.Update(context);
 
+            if (context.Fade) {
+                switch (context.FadeState) {
+                    case FadeStates.FadeIn:
+                        context.FadeValue += 0.05f;
+                        if (context.FadeValue >= 1) {
+                            context.FadeValue = 1;
+                            context.FadeState = FadeStates.FadeOut;
+
+                            context.FadedIn = true;
+                        }
+                    break;
+                    case FadeStates.FadeOut:
+                        context.FadeValue -= 0.05f;
+                        if (context.FadeValue <= 0) {
+                            context.FadeValue = 0;
+                            context.FadeState = FadeStates.FadeIn;
+
+                            context.Fade = false;
+                            context.FadedIn = false;
+                        }
+                    break;
+                }
+            }
+
             // Drawing inside the game world
             Raylib.BeginTextureMode(renderer);
                 Raylib.ClearBackground(Color.Black);
                 Raylib.DrawTexture(background, 0, 0, Color.White);
 
-                context.StateMachine.State?.Draw();                
+                context.StateMachine.State?.Draw();
+                
+                if (context.Fade)
+                    Raylib.DrawRectangleV(Vector2.Zero, GameSize, Raylib.Fade(Color.Black, context.FadeValue));
             Raylib.EndTextureMode();
 
             // Drawing to the whole screen
@@ -56,9 +87,9 @@ public static class FlappyBird {
                         0, 0, renderer.Texture.Width, -renderer.Texture.Height
                     ),
                     new Rectangle(
-                        (Raylib.GetScreenWidth() - (GameSize.X * scale)) * 0.5f,
-                        (Raylib.GetScreenHeight() - (GameSize.Y * scale)) * 0.5f,
-                        GameSize.X * scale, GameSize.Y * scale
+                        (Raylib.GetScreenWidth() - (GameSize.X * Scale)) * 0.5f,
+                        (Raylib.GetScreenHeight() - (GameSize.Y * Scale)) * 0.5f,
+                        GameSize.X * Scale, GameSize.Y * Scale
                     ),
                     Vector2.Zero,
                     0,

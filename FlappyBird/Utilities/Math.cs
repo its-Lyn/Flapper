@@ -8,6 +8,12 @@ public static class FlapMath {
         return from + (Math.Sign(to - from) * delta);
     }
 
+    public static float EaseInCubic(float x) 
+        => x * x * x; 
+
+    public static float EaseOutCubic(float x)
+        => 1 - MathF.Pow(1 - x, 3);
+
     public static IEnumerable<byte> SplitScore(int score) {
         while (score > 0) {
             byte digit = (byte)(score % 10);

@@ -1,7 +1,7 @@
 namespace FlappyBird.States;
 
 public interface State {
-    void Initialise();
+    void Initialise(StateContext ctx);
     void Update(StateContext ctx);
     void Draw();
 
