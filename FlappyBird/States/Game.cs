@@ -2,6 +2,7 @@ using System.Numerics;
 using FlappyBird.Components;
 using FlappyBird.Entities;
 using FlappyBird.Utilities;
+using FlappyBird.Utilities.XML;
 
 namespace FlappyBird.States;
 
@@ -83,6 +84,10 @@ public class Game : State {
 
     private Sparkle _sparkle = new Sparkle();
 
+    private int _highScore;
+    private bool _hideOldScore = false;
+    private readonly Texture2D New = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", "new.png"));
+
     private void UpdateScore() {
         _scoreTextured.Clear();        
         foreach (byte digit in FlapMath.SplitScore(_score))
@@ -144,6 +149,9 @@ public class Game : State {
         );
 
         PauseComponent.Initialise(ctx);
+
+        // Get HighScore
+        _highScore = Operations.Deserialise<SaveData>(Path.Combine(FlappyBird.SavePath)).HighScore;
     }
 
     public void Update(StateContext ctx) {
@@ -255,6 +263,9 @@ public class Game : State {
                         _ => null,
                     };
 
+                    if (_score > _highScore) 
+                        Operations.Serialise(new SaveData { HighScore = _score }, Path.Combine(FlappyBird.SavePath));
+
                     _animateNumbers = true;
                     _animating = true;
                 }
@@ -357,6 +368,14 @@ public class Game : State {
                 Raylib.DrawTexture(_smallNumbers[0], (int)smallBase, (int)_panelPos.Y + 33, Color.White);
             }
 
+            if (!_hideOldScore) {
+                var highBase = smallBase;
+                foreach (byte digit in FlapMath.SplitScore(_highScore)) {
+                    Raylib.DrawTexture(_smallNumbers[digit], (int)highBase, (int)_panelPos.Y + 73, Color.White);
+                    highBase -= _smallNumbers[digit].Width;
+                }
+            }
+
             if (_animateNumbers) {
                 if (_score == 0) _animating = false;
                 if (_score != 0) {
@@ -387,6 +406,28 @@ public class Game : State {
                 }
             } 
 
+            if (_showButtons) {
+                foreach (Button button in _buttons)
+                    button.Draw();
+                
+                if (_score > _highScore) {
+                    Raylib.DrawTexture(New, (int)FlappyBird.GameSize.X - New.Width - 90, (int)_panelPos.Y + 59, Color.White);
+
+                    _hideOldScore = true;
+                    var highBase = smallBase;
+                    foreach (byte digit in FlapMath.SplitScore(_score)) {
+                        Raylib.DrawTexture(_smallNumbers[digit], (int)highBase, (int)_panelPos.Y + 73, Color.White);
+                        highBase -= _smallNumbers[digit].Width;
+                    }
+                }
+                
+                if (_medal is not null) {
+                    Raylib.DrawTexture(_medal.Value, (int)_panelPos.X + 26, 241, Color.White);
+                    _sparkle.Update((int)_panelPos.X + 32, 247, 30, 30);
+                    _sparkle.Draw();
+                }
+            }
+
             if (_showNumbers) {
                 UpdateScoreSmall();
 
@@ -394,17 +435,6 @@ public class Game : State {
                     Raylib.DrawTexture(num, (int)smallBase, (int)_panelPos.Y + 33, Color.White);
                     smallBase -= num.Width;
                 } 
-            }
-
-            if (_showButtons) {
-                foreach (Button button in _buttons)
-                    button.Draw();
-                
-                if (_medal is not null) {
-                    Raylib.DrawTexture(_medal.Value, (int)_panelPos.X + 26, 241, Color.White);
-                    _sparkle.Update((int)_panelPos.X + 32, 247, 30, 30);
-                    _sparkle.Draw();
-                }
             }
         }
 
@@ -433,6 +463,7 @@ public class Game : State {
         Raylib.UnloadTexture(PipeSprite);
         Raylib.UnloadTexture(PanelTexture);
         Raylib.UnloadTexture(GameOver);
+        Raylib.UnloadTexture(New);
 
         Raylib.UnloadTexture(Bronze);
         Raylib.UnloadTexture(Silver);

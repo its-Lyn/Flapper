@@ -11,6 +11,8 @@ public static class FlappyBird {
     public static readonly bool NoClip = false;
     
     public static readonly string AssetPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets");
+    public static readonly string SavePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Saves", "Save.xml");
+    
     public static readonly Vector2 GameSize = new Vector2(288, 512);
 
     public static void Main() {

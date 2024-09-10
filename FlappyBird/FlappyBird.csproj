@@ -11,6 +11,10 @@
     <Content Include="Assets\**">
       <CopyToOutputDirectory>preserveNewest</CopyToOutputDirectory>
     </Content>
+    
+    <Content Include="Saves\**">
+      <CopyToOutputDirectory>preserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
