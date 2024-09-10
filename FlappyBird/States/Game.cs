@@ -61,6 +61,13 @@ public class Game : State {
     private List<Button> _buttons = [];
     private bool _showButtons = false;
 
+    private List<Texture2D> _smallNumbers = [];
+    private bool _animateNumbers = false;
+    private bool _animating = false;
+    private int _tick = 0;
+    private float _animationTimer = 0;
+    private bool _showNumbers = false;
+
     private readonly Texture2D Pause = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Buttons", "pause.png"));
     private Button _pauseButton = null!;
     private bool _gamePaused = false;        
@@ -73,14 +80,22 @@ public class Game : State {
             _scoreTextured.Add(_scoreSprites[digit]);
     }
 
+    private void UpdateScoreSmall() {
+        _scoreTextured.Clear();
+        foreach (byte digit in FlapMath.SplitScore(_score))
+            _scoreTextured.Add(_smallNumbers[digit]);
+    }
+
     public void Initialise(StateContext ctx) {
         _bird.Initialise();
 
         foreach (Ground ground in _ground) 
             ground.Initialise();
 
-        for (int i = 0; i <= 9; i++)
+        for (int i = 0; i <= 9; i++) {
+            _smallNumbers.Add(Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", $"{i}_small.png")));
             _scoreSprites.Add(Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", $"{i}.png")));
+        }
 
         _panelPos = new Vector2(
             33,
@@ -218,7 +233,9 @@ public class Game : State {
                 if (_panelTimer >= 0.6f) {
                     _panelTimer = 0.6f;
                     _panelAnimating = false;
-                    _showButtons = true;
+
+                    _animateNumbers = true;
+                    _animating = true;
                 }
 
                 float timeNormalised = _panelTimer / 0.6f;
@@ -312,7 +329,51 @@ public class Game : State {
         if (_bird.Dead) {
             Raylib.DrawTexture(GameOver, 50, (int)_gameOverY, Raylib.Fade(Color.White, _gameOverAlpha));
 
+            float smallBase = _panelPos.X + PanelTexture.Width - _smallNumbers[0].Width - 22;
+            
             Raylib.DrawTextureV(PanelTexture, _panelPos, Color.White);
+            if (!_animateNumbers && !_showNumbers) {
+                Raylib.DrawTexture(_smallNumbers[0], (int)smallBase, (int)_panelPos.Y + 33, Color.White);
+            }
+
+            if (_animateNumbers) {
+                if (_score == 0) _animating = false;
+                if (_score != 0) {
+                    _animationTimer += Raylib.GetFrameTime();
+                    if (_animationTimer >= 0.03f) {
+                        _animationTimer = 0;
+
+                        _tick += 1;
+                        if (_tick == _score) 
+                            _animating = false;
+                    }
+                    
+                    if (_tick < 10) {
+                        Raylib.DrawTexture(_smallNumbers[_tick], (int)smallBase, (int)_panelPos.Y + 33, Color.White);
+                    } else {
+                        var newBase = smallBase;
+                        foreach (byte digit in FlapMath.SplitScore(_tick)) {
+                            Raylib.DrawTexture(_smallNumbers[digit], (int)newBase, (int)_panelPos.Y + 33, Color.White);
+                            newBase -= _smallNumbers[digit].Width;
+                        }
+                    }
+                }
+
+                if (!_animating) {
+                    _animateNumbers = false;
+                    _showNumbers = true;
+                    _showButtons = true;
+                }
+            } 
+
+            if (_showNumbers) {
+                UpdateScoreSmall();
+
+                foreach (Texture2D num in _scoreTextured) {
+                    Raylib.DrawTexture(num, (int)smallBase, (int)_panelPos.Y + 33, Color.White);
+                    smallBase -= num.Width;
+                } 
+            }
 
             if (_showButtons) {
                 foreach (Button button in _buttons)
@@ -329,7 +390,7 @@ public class Game : State {
         if (_score == 0 || !_playing || _bird.Dead)
             return;
 
-        var basePosition = (FlappyBird.GameSize.X / 2) + (_scoreSprites[1].Width / 2 * _scoreTextured.Count);
+        float basePosition = (FlappyBird.GameSize.X / 2) + (_scoreSprites[1].Width / 2 * _scoreTextured.Count);
         foreach (Texture2D num in _scoreTextured) {
             basePosition -= num.Width;
             Raylib.DrawTexture(num, (int)basePosition, 10, Raylib.Fade(Color.White, _scoreAlpha));
@@ -339,6 +400,7 @@ public class Game : State {
     public void OnExit() {
         Raylib.UnloadSound(ScoreSound);
         Raylib.UnloadSound(DeathSound);
+        Raylib.UnloadSound(ScoreSound);
 
         Raylib.UnloadTexture(StartTexture);
         Raylib.UnloadTexture(PipeSprite);
@@ -353,6 +415,9 @@ public class Game : State {
             pipes.OnExit();
 
         foreach (Texture2D tex in _scoreSprites) 
+            Raylib.UnloadTexture(tex);
+        
+        foreach (Texture2D tex in _smallNumbers)
             Raylib.UnloadTexture(tex);
     }
 }

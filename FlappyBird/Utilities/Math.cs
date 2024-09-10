@@ -24,6 +24,8 @@ public static class FlapMath {
     }
 
     public static IEnumerable<byte> SplitScore(int score) {
+        if (score == 0) yield return 0;
+
         while (score > 0) {
             byte digit = (byte)(score % 10);
             yield return digit;
