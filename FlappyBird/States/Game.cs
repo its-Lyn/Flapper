@@ -74,6 +74,15 @@ public class Game : State {
 
     private readonly Pause PauseComponent = new Pause();
 
+    private readonly Texture2D Bronze = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", "bronze-medal.png"));
+    private readonly Texture2D Silver = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", "silver-medal.png"));
+    private readonly Texture2D Gold = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", "gold-medal.png"));
+    private readonly Texture2D Platinum = Raylib.LoadTexture(Path.Combine(FlappyBird.AssetPath, "Sprites", "platinum-medal.png"));
+
+    private Texture2D? _medal;
+
+    private Sparkle _sparkle = new Sparkle();
+
     private void UpdateScore() {
         _scoreTextured.Clear();        
         foreach (byte digit in FlapMath.SplitScore(_score))
@@ -234,6 +243,18 @@ public class Game : State {
                     _panelTimer = 0.6f;
                     _panelAnimating = false;
 
+                    // Calculate which medal to get
+                    // 10 for bronze, 20 for silver
+                    // 30 for gold, and 40 for platinum
+                    // SOURCE: https://en.wikipedia.org/wiki/Flappy_Bird#Gameplay
+                    _medal = _score switch {
+                        >= 40 => Platinum,
+                        >= 30 => Gold,
+                        >= 20 => Silver,
+                        >= 10 => Bronze,
+                        _ => null,
+                    };
+
                     _animateNumbers = true;
                     _animating = true;
                 }
@@ -378,6 +399,12 @@ public class Game : State {
             if (_showButtons) {
                 foreach (Button button in _buttons)
                     button.Draw();
+                
+                if (_medal is not null) {
+                    Raylib.DrawTexture(_medal.Value, (int)_panelPos.X + 26, 241, Color.White);
+                    _sparkle.Update((int)_panelPos.X + 32, 247, 30, 30);
+                    _sparkle.Draw();
+                }
             }
         }
 
@@ -400,12 +427,17 @@ public class Game : State {
     public void OnExit() {
         Raylib.UnloadSound(ScoreSound);
         Raylib.UnloadSound(DeathSound);
-        Raylib.UnloadSound(ScoreSound);
+        Raylib.UnloadSound(FallSound);
 
         Raylib.UnloadTexture(StartTexture);
         Raylib.UnloadTexture(PipeSprite);
         Raylib.UnloadTexture(PanelTexture);
         Raylib.UnloadTexture(GameOver);
+
+        Raylib.UnloadTexture(Bronze);
+        Raylib.UnloadTexture(Silver);
+        Raylib.UnloadTexture(Gold);
+        Raylib.UnloadTexture(Platinum);
 
         _bird.OnExit();
         foreach (Ground ground in _ground)
