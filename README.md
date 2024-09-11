@@ -13,7 +13,7 @@ Instructions on installing the game.
 Click on the [Releases page](https://github.com/its-Lyn/Flapper/releases)! <br>
 Once there, simply click on your OS's Release!
 
-> ![TIP]
+> [!TIP]
 > For Linux based distributions, you can run `setup.sh` to create a desktop entry!
 
 ### Compiling yourself (Advanced)
